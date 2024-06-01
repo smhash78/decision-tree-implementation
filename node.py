@@ -2,6 +2,9 @@ from typing import List, Any
 
 import pandas as pd
 
+import CONSTANTS
+from data import Data
+
 
 class Node:
     def __init__(
@@ -18,20 +21,6 @@ class Node:
         self.children = children
         self.threshold = threshold
 
-    def run(self, X: pd.DataFrame):
-        split_data = {}
-
-        # nominal/categorical
-        if self.feature_type == 'NOM':
-            grouped = X.groupby(self.selected_feature)
-
-            for category, group in grouped:
-                split_data[category] = group
-
-        # numeric (with threshold)
-        else:
-            split_data['above'] = X[X[self.selected_feature] >= self.threshold]
-            split_data['below'] = X[X[self.selected_feature] < self.threshold]
-
-        return split_data
+    def run(self, data: Data):
+        return data.get_dv_portions(self.selected_feature, self.threshold)
 

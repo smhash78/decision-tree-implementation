@@ -1,36 +1,65 @@
-from typing import Union, Dict
+from typing import Union, Dict, Type, TypeVar
 
 import pandas as pd
+
+import CONSTANTS
+
+T = TypeVar('T', bound='Data')
 
 
 class Data:
     def __init__(
             self,
-            data: pd.DataFrame,
+            X: pd.DataFrame,
+            y: pd.Series,
             feature_types: Dict[str, str],
     ):
-        self.data = data
+        self.X = X
+        self.y = y
         self.feature_types = feature_types
+
+    def __len__(self):
+        return len(self.y)
+
+    def get_feature_names(self):
+        return self.X.columns.tolist()
 
     def get_dv_portions(
             self,
             xj: str,
             threshold: Union[int, float] = None
-    ) -> Dict[str, pd.DataFrame]:
+    ) -> Dict[str, T]:
         # nominal/categorical
         result = {}
-        if self.feature_types[xj] == 'NOM':
-            for value in self.data[xj].unique():
-                result[value] = self.data[self.data[xj] == value]
+        if self.feature_types[xj] == CONSTANTS.nominal:
+            for value in self.X[xj].unique():
+                X_subset = self.X[self.X[xj] == value]
+                y_subset = self.y[X_subset.index]
+
+                result[xj] = Data(X_subset, y_subset, self.feature_types)
+
         # numerical
         else:
             if threshold is not None:
+                X_subset_above = self.X[self.X[xj] >= threshold]
+                y_subset_above = self.y[X_subset_above.index]
+
+                X_subset_below = self.X[self.X[xj] < threshold]
+                y_subset_below = self.y[X_subset_below.index]
+
                 result = {
-                    'above': self.data[self.data[xj] >= threshold],
-                    'below': self.data[self.data[xj] < threshold],
+                    'above': Data(
+                        X_subset_above,
+                        y_subset_above,
+                        self.feature_types,
+                    ),
+                    'below': Data(
+                        X_subset_below,
+                        y_subset_below,
+                        self.feature_types,
+                    ),
                 }
             else:
                 raise ValueError("The value of threshold can't be None when the feature is numerical.")
 
         return result
-
