@@ -31,7 +31,7 @@ class Data:
     ) -> Dict[str, T]:
         # nominal/categorical
         result = {}
-        if self.feature_types[xj] == CONSTANTS.nominal:
+        if self.feature_types[xj] == CONSTANTS.NOMINAL:
             for value in self.X[xj].unique():
                 X_subset = self.X[self.X[xj] == value]
                 y_subset = self.y[X_subset.index]
