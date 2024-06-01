@@ -1,0 +1,2 @@
+nominal = 'NOM'
+numerical = 'NUM'
