@@ -1,2 +1,5 @@
-nominal = 'NOM'
-numerical = 'NUM'
+
+# feature types
+NOMINAL = 'NOM'
+NUMERIC = 'NUM'
+
