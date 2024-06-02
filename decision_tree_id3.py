@@ -42,7 +42,6 @@ def get_information_gain(
 def get_best_information_gain(
         data: Data,
         xj: str,
-        threshold: Union[int, float]
 ) -> Tuple[float, Union[int, float, None]]:
     # nominal/categorical
     if data.X.feature_types[xj] == CONSTANTS.NOMINAL:
@@ -53,20 +52,35 @@ def get_best_information_gain(
         pass
 
 
+def get_best_gain(
+        data: Data,
+        xj: str,
+        method: str = CONSTANTS.IG,
+) -> Tuple[float, Union[int, float, None]]:
+
+    # information gain
+    if method == CONSTANTS.IG:
+        return get_best_information_gain(data, xj)
+
+    # gain ration
+    elif method == CONSTANTS.GR:
+        pass
+
+
 def choose_best_feature(
         data: Data,
-        method: str = 'IG',
+        method: str = CONSTANTS.IG,
 ) -> Tuple[str, Union[int, float, None]]:
-    if method == 'IG':
-        best_information_gain = -1
+    if method == CONSTANTS.IG:
+        best_gain = -1
         best_feature = None
         threshold = None
 
         for xj in data.X.get_feature_names():
             ig, t = get_best_information_gain(data, xj)
 
-            if ig > best_information_gain:
-                best_information_gain = ig
+            if ig > best_gain:
+                best_gain = ig
                 best_feature = xj
                 threshold = t
 
@@ -75,7 +89,7 @@ def choose_best_feature(
 
 def create_node(
         data: Data,
-        method: str = 'IG',
+        method: str = CONSTANTS.IG,
 ) -> Union[Node, LeafNode]:
     if len(data.y.unique()) == 1:
         return LeafNode(data.y[0])
@@ -123,7 +137,7 @@ class DecisionTreeID3:
     def train(
             self,
             data: Data,
-            method: str = 'IG',
+            method: str = CONSTANTS.IG,
     ):
         self.tree = construct_tree(data, method)
 
