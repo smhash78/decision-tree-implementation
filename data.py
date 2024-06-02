@@ -38,7 +38,7 @@ class Data:
 
                 result[value] = Data(X_subset, y_subset, self.feature_types.copy())
 
-        # numerical
+        # TODO numerical
         else:
             if threshold is not None:
                 X_subset_above = self.X[self.X[xj] >= threshold]

@@ -47,7 +47,7 @@ def get_best_information_gain(
     if data.feature_types[xj] == CONSTANTS.NOMINAL:
         return get_information_gain(data, xj), None
 
-    # numeric
+    # TODO numeric
     else:
         pass
 
@@ -61,7 +61,7 @@ def get_best_gain(
     if method == CONSTANTS.IG:
         return get_best_information_gain(data, xj)
 
-    # gain ration
+    # TODO gain ration
     elif method == CONSTANTS.GR:
         pass
 
@@ -123,7 +123,7 @@ def construct_tree(
 
         return node
 
-    # numeric
+    # TODO [check] numeric
     else:
         return Node(
             selected_feature=best_feature,

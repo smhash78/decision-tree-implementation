@@ -40,7 +40,7 @@ class Node:
         if self.feature_type == CONSTANTS.NOMINAL:
             return self.children[data_point[self.selected_feature]]
 
-        # numeric
+        # TODO [check] numeric
         else:
             feature_value = data_point[self.selected_feature]
 
