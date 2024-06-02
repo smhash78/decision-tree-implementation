@@ -1,4 +1,3 @@
-from copy import copy
 from math import log2
 from typing import Tuple, Union
 
@@ -70,7 +69,7 @@ def get_best_gain(
 def choose_best_feature(
         data: Data,
         method: str = CONSTANTS.IG,
-) -> Tuple[str, Union[int, float, None]]:
+) -> Tuple[Union[str, None], Union[int, float, None]]:
     if method == CONSTANTS.IG:
         best_gain = -1
         best_feature = None
@@ -84,50 +83,11 @@ def choose_best_feature(
                 best_feature = xj
                 threshold = t
 
+        # when going deeper doesn't help
+        if best_gain == 0:
+            return None, None
+
         return best_feature, threshold
-
-
-def create_node(
-        data: Data,
-        method: str = CONSTANTS.IG,
-) -> Union[Node, LeafNode]:
-    if len(data.y.unique()) == 1:
-        return LeafNode(data.y[0])
-
-    best_feature, threshold = choose_best_feature(data, method)
-
-    # nominal
-    if threshold is None:
-        return Node(
-            selected_feature=best_feature,
-            feature_type=data.feature_types[best_feature],
-            feature_values=data.X[best_feature].unique(),
-        )
-
-    # numeric
-    else:
-        return Node(
-            selected_feature=best_feature,
-            feature_type=data.feature_types[best_feature],
-            threshold=threshold
-        )
-
-
-def construct_tree0(
-        data: Data,
-        method: str = 'IG',
-) -> Union[Node, LeafNode]:
-    new_node = create_node(data)
-
-    if isinstance(new_node, LeafNode):
-        return new_node
-
-    split_data = data.run_for_data(data)
-
-    for key, value in split_data.items():
-        new_node.children[key] = construct_tree(value)
-
-    return new_node
 
 
 def construct_tree(
@@ -143,6 +103,10 @@ def construct_tree(
         return LeafNode(data.y.mode()[0])
 
     best_feature, threshold = choose_best_feature(data, method)
+
+    # non of the features is useful
+    if best_feature is None:
+        return LeafNode(data.y.mode()[0])
 
     # nominal
     if threshold is None:

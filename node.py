@@ -3,7 +3,6 @@ from typing import List, Any, Union, Dict
 import pandas as pd
 
 import CONSTANTS
-from data import Data
 
 
 class Node:
