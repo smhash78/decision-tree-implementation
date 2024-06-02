@@ -1,3 +1,4 @@
+from copy import copy
 from math import log2
 from typing import Tuple, Union
 
@@ -25,7 +26,7 @@ def get_conditional_entropy(
         threshold: Union[int, float, None] = None,
 ) -> float:
     result = 0.0
-    for dv in data.get_dv_portions(xj, threshold):
+    for _, dv in data.get_dv_portions(xj, threshold).items():
         result += len(dv) / len(data) * get_entropy(dv)
 
     return result
@@ -44,7 +45,7 @@ def get_best_information_gain(
         xj: str,
 ) -> Tuple[float, Union[int, float, None]]:
     # nominal/categorical
-    if data.X.feature_types[xj] == CONSTANTS.NOMINAL:
+    if data.feature_types[xj] == CONSTANTS.NOMINAL:
         return get_information_gain(data, xj), None
 
     # numeric
@@ -57,7 +58,6 @@ def get_best_gain(
         xj: str,
         method: str = CONSTANTS.IG,
 ) -> Tuple[float, Union[int, float, None]]:
-
     # information gain
     if method == CONSTANTS.IG:
         return get_best_information_gain(data, xj)
@@ -76,7 +76,7 @@ def choose_best_feature(
         best_feature = None
         threshold = None
 
-        for xj in data.X.get_feature_names():
+        for xj in data.get_feature_names():
             ig, t = get_best_information_gain(data, xj)
 
             if ig > best_gain:
@@ -113,7 +113,7 @@ def create_node(
         )
 
 
-def construct_tree(
+def construct_tree0(
         data: Data,
         method: str = 'IG',
 ) -> Union[Node, LeafNode]:
@@ -122,12 +122,50 @@ def construct_tree(
     if isinstance(new_node, LeafNode):
         return new_node
 
-    split_data = new_node.run_for_data(data)
+    split_data = data.run_for_data(data)
 
     for key, value in split_data.items():
         new_node.children[key] = construct_tree(value)
 
     return new_node
+
+
+def construct_tree(
+        data: Data,
+        method: str = 'IG',
+) -> Union[Node, LeafNode]:
+    # all data sorted correctly
+    if len(data.y.unique()) == 1 or len(data.y) == 1:
+        return LeafNode(data.y.iloc[0])
+
+    # no feature left
+    elif data.X.shape[1] == 0:
+        return LeafNode(data.y.mode()[0])
+
+    best_feature, threshold = choose_best_feature(data, method)
+
+    # nominal
+    if threshold is None:
+        node = Node(
+            selected_feature=best_feature,
+            feature_type=data.feature_types[best_feature],
+            feature_values=data.X[best_feature].unique(),
+        )
+        split_data = data.get_dv_portions(best_feature, threshold)
+
+        for key, value in split_data.items():
+            value.remove_feature(best_feature)
+            node.children[key] = construct_tree(value, method)
+
+        return node
+
+    # numeric
+    else:
+        return Node(
+            selected_feature=best_feature,
+            feature_type=data.feature_types[best_feature],
+            threshold=threshold
+        )
 
 
 class DecisionTreeID3:
@@ -148,3 +186,6 @@ class DecisionTreeID3:
             current_node = current_node.run_for_point(data_point)
 
         return current_node.label
+
+    def print_tree(self):
+        self.tree.print_node(0)

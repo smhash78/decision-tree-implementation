@@ -17,9 +17,24 @@ class Node:
     ):
         self.selected_feature = selected_feature
         self.feature_type = feature_type
-        self.feature_values = feature_values
-        self.children = children
+
+        if feature_values is None:
+            self.feature_values = []
+        else:
+            self.feature_values = feature_values
+
+        if children is None:
+            self.children = {}
+        else:
+            self.children = children
+
         self.threshold = threshold
+
+    def print_node(self, layer: int = 0, last_feature_value: Any = 'root'):
+        indentation = '\t' * layer
+        print(f"{indentation}#({last_feature_value} -> {self.selected_feature}: {self.feature_values})#")
+        for key, child in self.children.items():
+            child.print_node(layer + 1, key)
 
     def run_for_point(self, data_point: pd.Series) -> 'Node':
         # nominal/categorical
@@ -36,9 +51,6 @@ class Node:
             else:
                 return self.children['below']
 
-    def run_for_data(self, data: Data):
-        return data.get_dv_portions(self.selected_feature, self.threshold)
-
 
 class LeafNode:
     def __init__(
@@ -46,3 +58,7 @@ class LeafNode:
             label: Any = None,
     ):
         self.label = label
+
+    def print_node(self, layer: int, last_feature_value: Any):
+        indentation = '\t' * layer
+        print(f"{indentation}#({last_feature_value} -> label: {self.label})#")

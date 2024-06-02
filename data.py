@@ -36,7 +36,7 @@ class Data:
                 X_subset = self.X[self.X[xj] == value]
                 y_subset = self.y[X_subset.index]
 
-                result[xj] = Data(X_subset, y_subset, self.feature_types)
+                result[value] = Data(X_subset, y_subset, self.feature_types.copy())
 
         # numerical
         else:
@@ -63,3 +63,7 @@ class Data:
                 raise ValueError("The value of threshold can't be None when the feature is numerical.")
 
         return result
+
+    def remove_feature(self, feature_name: str):
+        self.X = self.X.drop(feature_name, axis=1)
+        del self.feature_types[feature_name]
