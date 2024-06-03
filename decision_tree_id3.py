@@ -39,6 +39,31 @@ def get_information_gain(
     return get_entropy(data) - get_conditional_entropy(data, xj, threshold)
 
 
+def find_best_threshold_ig(
+        data: Data,
+        xj: str,
+) -> Tuple[float, float]:
+    unique_values = data.X[xj].unique()
+    if len(unique_values) == 1:
+        thresholds = unique_values
+    else:
+        thresholds = [
+            (unique_values[i] + unique_values[i + 1]) / 2
+            for i in range(len(unique_values) - 1)
+        ]
+
+    best_ig = -1
+    best_threshold = None
+
+    for threshold in thresholds:
+        ig = get_information_gain(data, xj, threshold)
+        if ig > best_ig:
+            best_ig = ig
+            best_threshold = threshold
+
+    return best_threshold, best_ig
+
+
 def get_best_information_gain(
         data: Data,
         xj: str,
@@ -47,9 +72,11 @@ def get_best_information_gain(
     if data.feature_types[xj] == CONSTANTS.NOMINAL:
         return get_information_gain(data, xj), None
 
-    # TODO numeric
+    # TODO numeric [done]
     else:
-        pass
+        threshold, ig = find_best_threshold_ig(data, xj)
+
+        return ig, threshold
 
 
 def get_best_gain(
@@ -108,28 +135,32 @@ def construct_tree(
     if best_feature is None:
         return LeafNode(data.y.mode()[0])
 
-    # nominal
-    if threshold is None:
-        node = Node(
-            selected_feature=best_feature,
-            feature_type=data.feature_types[best_feature],
-            feature_values=data.X[best_feature].unique(),
-        )
-        split_data = data.get_dv_portions(best_feature, threshold)
+    # # nominal
+    # if threshold is None:
 
-        for key, value in split_data.items():
-            value.remove_feature(best_feature)
-            node.children[key] = construct_tree(value, method)
+    feature_values = data.feature_types[best_feature] if threshold is None else None
 
-        return node
+    node = Node(
+        selected_feature=best_feature,
+        feature_type=data.feature_types[best_feature],
+        feature_values=feature_values,
+        threshold=threshold,
+    )
+    split_data = data.get_dv_portions(best_feature, threshold)
 
-    # TODO [check] numeric
-    else:
-        return Node(
-            selected_feature=best_feature,
-            feature_type=data.feature_types[best_feature],
-            threshold=threshold
-        )
+    for key, value in split_data.items():
+        value.remove_feature(best_feature)
+        node.children[key] = construct_tree(value, method)
+
+    return node
+
+    # # TODO [check] numeric [done]
+    # else:
+    #     return Node(
+    #         selected_feature=best_feature,
+    #         feature_type=data.feature_types[best_feature],
+    #         threshold=threshold
+    #     )
 
 
 class DecisionTreeID3:

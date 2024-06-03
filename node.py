@@ -11,8 +11,8 @@ class Node:
             selected_feature: str,
             feature_type: str,
             feature_values: Union[List[Any], None] = None,
-            children: Union[Dict[Any, 'Node'], None] = None,
             threshold: float = None,
+            children: Union[Dict[Any, 'Node'], None] = None,
     ):
         self.selected_feature = selected_feature
         self.feature_type = feature_type
@@ -22,12 +22,12 @@ class Node:
         else:
             self.feature_values = feature_values
 
+        self.threshold = threshold
+
         if children is None:
             self.children = {}
         else:
             self.children = children
-
-        self.threshold = threshold
 
     def print_node(self, layer: int = 0, last_feature_value: Any = 'root'):
         indentation = '\t' * layer
@@ -40,7 +40,7 @@ class Node:
         if self.feature_type == CONSTANTS.NOMINAL:
             return self.children[data_point[self.selected_feature]]
 
-        # TODO [check] numeric
+        # TODO [check] numeric [done]
         else:
             feature_value = data_point[self.selected_feature]
 

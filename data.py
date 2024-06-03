@@ -38,7 +38,7 @@ class Data:
 
                 result[value] = Data(X_subset, y_subset, self.feature_types.copy())
 
-        # TODO numerical
+        # TODO numeric [done]
         else:
             if threshold is not None:
                 X_subset_above = self.X[self.X[xj] >= threshold]
@@ -60,7 +60,7 @@ class Data:
                     ),
                 }
             else:
-                raise ValueError("The value of threshold can't be None when the feature is numerical.")
+                raise ValueError("The value of threshold can't be None when the feature is numeric.")
 
         return result
 
