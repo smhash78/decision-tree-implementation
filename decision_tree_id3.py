@@ -131,7 +131,7 @@ def construct_tree(
 
     best_feature, threshold = choose_best_feature(data, method)
 
-    # non of the features is useful
+    # none of the features is useful
     if best_feature is None:
         return LeafNode(data.y.mode()[0])
 
@@ -149,7 +149,9 @@ def construct_tree(
     split_data = data.get_dv_portions(best_feature, threshold)
 
     for key, value in split_data.items():
-        value.remove_feature(best_feature)
+        # nominal/categorical
+        if threshold is None:
+            value.remove_feature(best_feature)
         node.children[key] = construct_tree(value, method)
 
     return node

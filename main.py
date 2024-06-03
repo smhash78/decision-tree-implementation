@@ -1,4 +1,5 @@
 from time import time
+from sklearn.datasets import load_iris
 
 import pandas as pd
 
@@ -75,12 +76,37 @@ def run_test_data_2():
     decision_tree.print_tree()
 
 
+def run_test_data_3():
+    column_names = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'class']
+    df = pd.read_csv('data/iris.data', header=None, names=column_names)
+
+    X = df[column_names[:-1]]
+    y = df[column_names[-1]]
+
+    decision_tree = DecisionTreeID3()
+    decision_tree.train(
+        Data(
+            X,
+            y,
+            {key: CONSTANTS.NUMERIC for key in column_names[:-1]}
+        )
+    )
+
+    decision_tree.print_tree()
+
+
 if __name__ == '__main__':
-    now = time()
-    run_test_data_1()
-    print(f"It took {time() - now} seconds.")
-    print()
+    # now = time()
+    # run_test_data_1()
+    # print(f"It took {time() - now} seconds.")
+    # print()
+    #
+    # now = time()
+    # run_test_data_2()
+    # print(f"It took {time() - now} seconds.")
+    # print()
 
     now = time()
-    run_test_data_2()
+    run_test_data_3()
     print(f"It took {time() - now} seconds.")
+    print()
