@@ -9,6 +9,28 @@ from data import Data
 from decision_tree_id3 import DecisionTreeID3
 
 
+def train_and_print_test_results(
+        train_data: Data,
+        test_data: Data,
+        sample_number: int,
+) -> None:
+    print(f"Sample data {sample_number}, using information gain:")
+
+    decision_tree_ig = DecisionTreeID3()
+    decision_tree_ig.train(train_data)
+
+    decision_tree_ig.print_tree()
+    print(f"Accuracy: {decision_tree_ig.test(test_data)[CONSTANTS.ACCURACY]}\n")
+
+    print(f"Sample data {sample_number}, using gain ratio:")
+
+    decision_tree_gr = DecisionTreeID3()
+    decision_tree_gr.train(train_data)
+
+    decision_tree_gr.print_tree()
+    print(f"Accuracy: {decision_tree_gr.test(test_data)[CONSTANTS.ACCURACY]}\n")
+
+
 def run_test_data_1():
     df = pd.DataFrame({
         'A': ['F', 'T', 'T', 'T'],
@@ -20,24 +42,21 @@ def run_test_data_1():
     X = df[['A', 'B', 'C']]
     y = df['Y']
 
-    decision_tree = DecisionTreeID3()
-    decision_tree.train(
-        Data(
-            X,
-            y,
-            {
-                'A': CONSTANTS.NOMINAL,
-                'B': CONSTANTS.NOMINAL,
-                'C': CONSTANTS.NOMINAL,
-            }
-        )
+    data = Data(
+        X,
+        y,
+        {
+            'A': CONSTANTS.NOMINAL,
+            'B': CONSTANTS.NOMINAL,
+            'C': CONSTANTS.NOMINAL,
+        }
     )
 
-    decision_tree.print_tree()
+    train_and_print_test_results(data, data, 1)
 
 
 def run_test_data_2():
-    data = [
+    dataset = [
         ['Sunny', 'Hot', 'High', 'Light', 'No'],
         ['Sunny', 'Hot', 'High', 'Strong', 'No'],
         ['Overcast', 'Hot', 'High', 'Light', 'Yes'],
@@ -54,26 +73,23 @@ def run_test_data_2():
         ['Rain', 'Mild', 'High', 'Strong', 'No']
     ]
 
-    df = pd.DataFrame(data, columns=['Outlook', 'Temperature', 'Humidity', 'Wind', 'Play Tennis?'])
+    df = pd.DataFrame(dataset, columns=['Outlook', 'Temperature', 'Humidity', 'Wind', 'Play Tennis?'])
 
     X = df[['Outlook', 'Temperature', 'Humidity', 'Wind']]
     y = df['Play Tennis?']
 
-    decision_tree = DecisionTreeID3()
-    decision_tree.train(
-        Data(
-            X,
-            y,
-            {
-                'Outlook': CONSTANTS.NOMINAL,
-                'Temperature': CONSTANTS.NOMINAL,
-                'Humidity': CONSTANTS.NOMINAL,
-                'Wind': CONSTANTS.NOMINAL,
-            }
-        )
+    data = Data(
+        X,
+        y,
+        {
+            'Outlook': CONSTANTS.NOMINAL,
+            'Temperature': CONSTANTS.NOMINAL,
+            'Humidity': CONSTANTS.NOMINAL,
+            'Wind': CONSTANTS.NOMINAL,
+        }
     )
 
-    decision_tree.print_tree()
+    train_and_print_test_results(data, data, 2)
 
 
 def run_test_data_3():
@@ -106,11 +122,7 @@ def run_test_data_3():
         {key: CONSTANTS.NUMERIC for key in column_names[:-1]}
     )
 
-    decision_tree = DecisionTreeID3()
-    decision_tree.train(train_data)
-
-    decision_tree.print_tree()
-    print(decision_tree.test(test_data))
+    train_and_print_test_results(train_data, test_data, 3)
 
 
 if __name__ == '__main__':
@@ -127,4 +139,4 @@ if __name__ == '__main__':
     now = time()
     run_test_data_3()
     print(f"It took {time() - now} seconds.")
-    print()
+    print("\n\n")
