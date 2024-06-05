@@ -68,12 +68,10 @@ def get_best_information_gain(
         data: Data,
         xj: str,
 ) -> Tuple[float, Union[int, float, None]]:
-    # nominal/categorical
     if data.feature_types[xj] == CONSTANTS.NOMINAL:
         return get_information_gain(data, xj), None
 
-    # TODO numeric [done]
-    else:
+    elif data.feature_types[xj] == CONSTANTS.NUMERIC:
         threshold, ig = find_best_threshold_ig(data, xj)
 
         return ig, threshold
@@ -135,9 +133,6 @@ def construct_tree(
     if best_feature is None:
         return LeafNode(data.y.mode()[0])
 
-    # # nominal
-    # if threshold is None:
-
     feature_values = data.feature_types[best_feature] if threshold is None else None
 
     node = Node(
@@ -155,14 +150,6 @@ def construct_tree(
         node.children[key] = construct_tree(value, method)
 
     return node
-
-    # # TODO [check] numeric [done]
-    # else:
-    #     return Node(
-    #         selected_feature=best_feature,
-    #         feature_type=data.feature_types[best_feature],
-    #         threshold=threshold
-    #     )
 
 
 class DecisionTreeID3:

@@ -1,5 +1,4 @@
 from time import time
-from sklearn.datasets import load_iris
 
 import pandas as pd
 
@@ -96,15 +95,15 @@ def run_test_data_3():
 
 
 if __name__ == '__main__':
-    # now = time()
-    # run_test_data_1()
-    # print(f"It took {time() - now} seconds.")
-    # print()
-    #
-    # now = time()
-    # run_test_data_2()
-    # print(f"It took {time() - now} seconds.")
-    # print()
+    now = time()
+    run_test_data_1()
+    print(f"It took {time() - now} seconds.")
+    print()
+
+    now = time()
+    run_test_data_2()
+    print(f"It took {time() - now} seconds.")
+    print()
 
     now = time()
     run_test_data_3()

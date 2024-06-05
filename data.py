@@ -29,8 +29,8 @@ class Data:
             xj: str,
             threshold: Union[int, float] = None
     ) -> Dict[str, T]:
-        # nominal/categorical
         result = {}
+
         if self.feature_types[xj] == CONSTANTS.NOMINAL:
             for value in self.X[xj].unique():
                 X_subset = self.X[self.X[xj] == value]
@@ -38,8 +38,7 @@ class Data:
 
                 result[value] = Data(X_subset, y_subset, self.feature_types.copy())
 
-        # TODO numeric [done]
-        else:
+        elif self.feature_types[xj] == CONSTANTS.NUMERIC:
             if threshold is not None:
                 X_subset_above = self.X[self.X[xj] >= threshold]
                 y_subset_above = self.y[X_subset_above.index]

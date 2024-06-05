@@ -31,17 +31,21 @@ class Node:
 
     def print_node(self, layer: int = 0, last_feature_value: Any = 'root'):
         indentation = '\t' * layer
-        print(f"{indentation}#({last_feature_value} -> {self.selected_feature}: {self.feature_values})#")
+        # nominal/categorical
+        if self.threshold is None:
+            print(f"{indentation}#({last_feature_value} -> {self.selected_feature}: {self.feature_values})#")
+        # numeric
+        else:
+            print(f"{indentation}#({last_feature_value} -> {self.selected_feature}: {self.threshold})#")
+
         for key, child in self.children.items():
             child.print_node(layer + 1, key)
 
     def run_for_point(self, data_point: pd.Series) -> 'Node':
-        # nominal/categorical
         if self.feature_type == CONSTANTS.NOMINAL:
             return self.children[data_point[self.selected_feature]]
 
-        # TODO [check] numeric [done]
-        else:
+        elif self.feature_type == CONSTANTS.NUMERIC:
             feature_value = data_point[self.selected_feature]
 
             if feature_value >= self.threshold:
