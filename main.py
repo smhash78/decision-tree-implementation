@@ -1,6 +1,7 @@
 from time import time
 
 import pandas as pd
+from sklearn.model_selection import train_test_split
 
 import CONSTANTS
 
@@ -82,16 +83,34 @@ def run_test_data_3():
     X = df[column_names[:-1]]
     y = df[column_names[-1]]
 
-    decision_tree = DecisionTreeID3()
-    decision_tree.train(
-        Data(
-            X,
-            y,
-            {key: CONSTANTS.NUMERIC for key in column_names[:-1]}
-        )
+    X_train, X_test, y_train, y_test = train_test_split(
+        X,
+        y,
+        test_size=0.2,
+        random_state=42
+    )
+    X_train.reset_index(drop=True, inplace=True)
+    X_test.reset_index(drop=True, inplace=True)
+    y_train.reset_index(drop=True, inplace=True)
+    y_test.reset_index(drop=True, inplace=True)
+
+    train_data = Data(
+        X_train,
+        y_train,
+        {key: CONSTANTS.NUMERIC for key in column_names[:-1]}
     )
 
+    test_data = Data(
+        X_test,
+        y_test,
+        {key: CONSTANTS.NUMERIC for key in column_names[:-1]}
+    )
+
+    decision_tree = DecisionTreeID3()
+    decision_tree.train(train_data)
+
     decision_tree.print_tree()
+    print(decision_tree.test(test_data))
 
 
 if __name__ == '__main__':
