@@ -78,7 +78,7 @@ def run_test_data_2():
 
 def run_test_data_3():
     column_names = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'class']
-    df = pd.read_csv('data/iris.data', header=None, names=column_names)
+    df = pd.read_csv('./data/iris.data', header=None, names=column_names)
 
     X = df[column_names[:-1]]
     y = df[column_names[-1]]
