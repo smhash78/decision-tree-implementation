@@ -1,5 +1,5 @@
 from math import log2
-from typing import Tuple, Union
+from typing import Tuple, Union, List
 
 import pandas as pd
 
@@ -162,6 +162,19 @@ class DecisionTreeID3:
             method: str = CONSTANTS.IG,
     ):
         self.tree = construct_tree(data, method)
+
+    def test(
+            self,
+            test_data: Data,
+            evaluation_metrics: Union[List[str], None] = None,
+    ):
+        true_predictions = 0
+        for i, row in test_data.X.iterrows():
+            prediction = self.predict(row)
+            if prediction == test_data.y.iloc[i]:
+                true_predictions += 1
+
+        return {CONSTANTS.ACCURACY: true_predictions / len(test_data.y)}
 
     def predict(self, data_point: pd.Series):
         current_node = self.tree
