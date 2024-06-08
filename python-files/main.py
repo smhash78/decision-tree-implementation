@@ -13,25 +13,18 @@ def train_and_print_test_results(
         train_data: Data,
         test_data: Data,
         sample_number: int,
+        method: str = CONSTANTS.IG,
 ) -> None:
-    print(f"Sample data {sample_number}, using information gain:")
+    print(f"Sample data {sample_number}, using {method}:")
 
-    decision_tree_ig = DecisionTreeID3()
-    decision_tree_ig.train(train_data)
+    decision_tree = DecisionTreeID3()
+    decision_tree.train(train_data, method)
 
-    decision_tree_ig.print_tree()
-    print(f"Accuracy: {decision_tree_ig.test(test_data)[CONSTANTS.ACCURACY]}\n")
-
-    print(f"Sample data {sample_number}, using gain ratio:")
-
-    decision_tree_gr = DecisionTreeID3()
-    decision_tree_gr.train(train_data)
-
-    decision_tree_gr.print_tree()
-    print(f"Accuracy: {decision_tree_gr.test(test_data)[CONSTANTS.ACCURACY]}\n")
+    decision_tree.print_tree()
+    print(f"Accuracy: {decision_tree.test(test_data)[CONSTANTS.ACCURACY]}\n")
 
 
-def run_test_data_1():
+def run_test_data_1(method: str = CONSTANTS.IG):
     df = pd.DataFrame({
         'A': ['F', 'T', 'T', 'T'],
         'B': ['F', 'F', 'T', 'T'],
@@ -52,10 +45,10 @@ def run_test_data_1():
         }
     )
 
-    train_and_print_test_results(data, data, 1)
+    train_and_print_test_results(data, data, 1, method)
 
 
-def run_test_data_2():
+def run_test_data_2(method: str = CONSTANTS.IG):
     dataset = [
         ['Sunny', 'Hot', 'High', 'Light', 'No'],
         ['Sunny', 'Hot', 'High', 'Strong', 'No'],
@@ -89,10 +82,10 @@ def run_test_data_2():
         }
     )
 
-    train_and_print_test_results(data, data, 2)
+    train_and_print_test_results(data, data, 2, method)
 
 
-def run_test_data_3():
+def run_test_data_3(method: str = CONSTANTS.IG):
     column_names = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'class']
     df = pd.read_csv('./data/iris.data', header=None, names=column_names)
 
@@ -122,21 +115,31 @@ def run_test_data_3():
         {key: CONSTANTS.NUMERIC for key in column_names[:-1]}
     )
 
-    train_and_print_test_results(train_data, test_data, 3)
+    train_and_print_test_results(train_data, test_data, 3, method)
+
+
+def run_test_and_print(
+        data_number: int,
+        method: str = CONSTANTS.IG,
+) -> None:
+    now = time()
+    if data_number == 1:
+        run_test_data_1(method)
+    elif data_number == 2:
+        run_test_data_2(method)
+    elif data_number == 3:
+        run_test_data_3(method)
+    print(f"It took {time() - now} seconds.")
+    print()
 
 
 if __name__ == '__main__':
-    now = time()
-    run_test_data_1()
-    print(f"It took {time() - now} seconds.")
-    print()
+    print('"Trees constructed using information gain"')
+    for i in range(1, 4):
+        run_test_and_print(i, CONSTANTS.IG)
 
-    now = time()
-    run_test_data_2()
-    print(f"It took {time() - now} seconds.")
-    print()
+    print('#' * 20)
 
-    now = time()
-    run_test_data_3()
-    print(f"It took {time() - now} seconds.")
-    print("\n\n")
+    print('"Trees constructed using gain ratio"')
+    for i in range(1, 4):
+        run_test_and_print(i, CONSTANTS.IG)
