@@ -40,10 +40,10 @@ class Data:
 
         elif self.feature_types[xj] == CONSTANTS.NUMERIC:
             if threshold is not None:
-                X_subset_above = self.X[self.X[xj] >= threshold]
+                X_subset_above = self.X[self.X[xj] > threshold]
                 y_subset_above = self.y[X_subset_above.index]
 
-                X_subset_below = self.X[self.X[xj] < threshold]
+                X_subset_below = self.X[self.X[xj] <= threshold]
                 y_subset_below = self.y[X_subset_below.index]
 
                 result = {

@@ -48,7 +48,7 @@ class Node:
         elif self.feature_type == CONSTANTS.NUMERIC:
             feature_value = data_point[self.selected_feature]
 
-            if feature_value >= self.threshold:
+            if feature_value > self.threshold:
                 return self.children['above']
 
             else:
