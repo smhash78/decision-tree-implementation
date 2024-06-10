@@ -8,7 +8,6 @@ from data import Data
 from node import LeafNode, Node
 
 
-# TODO check
 def calculate_log2(num: float):
     if num == 0:
         return inf
@@ -55,7 +54,6 @@ def calculate_split_info(
     result = 0.0
     for _, dv in data.get_dv_portions(xj, threshold).items():
         ratio = len(dv) / len(data)
-        print(ratio)
         result -= ratio * calculate_log2(ratio)
 
     return result
@@ -89,7 +87,6 @@ def find_best_threshold_gain(
         method: str = CONSTANTS.IG,
 ) -> Tuple[float, float]:
     unique_values = data.X[xj].unique()
-    # TODO check
     if len(unique_values) == 1:
         thresholds = unique_values
     else:
@@ -133,6 +130,9 @@ def find_best_feature(
     best_threshold = None
 
     for xj in data.get_feature_names():
+        # The features that has only one value can never be the best feature
+        if len(data.X[xj].unique()) == 1:
+            continue
         gain, threshold = find_best_gain(data, xj, method)
 
         if gain > best_gain:
@@ -141,7 +141,8 @@ def find_best_feature(
             best_threshold = threshold
 
     # when going deeper doesn't help
-    if best_gain == 0:
+    # -1 happens when each feature has only one value
+    if best_gain <= 0:
         return None, None
 
     return best_feature, best_threshold
@@ -152,7 +153,7 @@ def construct_tree(
         method: str = CONSTANTS.IG,
 ) -> Union[Node, LeafNode]:
     # all data sorted correctly
-    if len(data.y.unique()) == 1 or len(data.y) == 1:
+    if len(data.y.unique()) == 1:
         return LeafNode(data.y.iloc[0])
 
     # no feature left
