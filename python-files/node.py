@@ -62,6 +62,6 @@ class LeafNode:
     ):
         self.label = label
 
-    def print_node(self, layer: int, last_feature_value: Any):
+    def print_node(self, layer: int, last_feature_value: Any = 'root'):
         indentation = '\t' * layer
         print(f"{indentation}#({last_feature_value} -> label: {self.label})#")

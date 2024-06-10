@@ -1,4 +1,4 @@
-from math import log2
+from math import log2, inf
 from typing import Tuple, Union, List
 
 import pandas as pd
@@ -8,13 +8,20 @@ from data import Data
 from node import LeafNode, Node
 
 
+# TODO check
+def calculate_log2(num: float):
+    if num == 0:
+        return inf
+    return log2(num)
+
+
 def calculate_entropy(
         data: Data,
 ) -> float:
     result = 0.0
     for label in data.y.unique():
         p = data.y.value_counts()[label] / len(data.y)
-        result -= p * log2(p)
+        result -= p * calculate_log2(p)
 
     return result
 
@@ -48,18 +55,19 @@ def calculate_split_info(
     result = 0.0
     for _, dv in data.get_dv_portions(xj, threshold).items():
         ratio = len(dv) / len(data)
-        result -= ratio * log2(ratio)
+        print(ratio)
+        result -= ratio * calculate_log2(ratio)
 
     return result
 
 
-def calculate_gain_ration(
+def calculate_gain_ratio(
         data: Data,
         xj: str,
         threshold: Union[int, float, None] = None,
 ) -> float:
     return calculate_information_gain(data, xj, threshold) \
-           - calculate_split_info(data, xj, threshold)
+           / calculate_split_info(data, xj, threshold)
 
 
 def calculate_gain(
@@ -72,7 +80,7 @@ def calculate_gain(
         return calculate_information_gain(data, xj, threshold)
 
     elif method == CONSTANTS.GR:
-        return calculate_gain_ration(data, xj, threshold)
+        return calculate_gain_ratio(data, xj, threshold)
 
 
 def find_best_threshold_gain(
@@ -81,6 +89,7 @@ def find_best_threshold_gain(
         method: str = CONSTANTS.IG,
 ) -> Tuple[float, float]:
     unique_values = data.X[xj].unique()
+    # TODO check
     if len(unique_values) == 1:
         thresholds = unique_values
     else:
@@ -89,19 +98,19 @@ def find_best_threshold_gain(
             for i in range(len(unique_values) - 1)
         ]
 
-    best_ig = -1
+    best_gain = -1
     best_threshold = None
 
     for threshold in thresholds:
-        ig = calculate_gain(data, xj, threshold, method)
-        if ig > best_ig:
-            best_ig = ig
+        gain = calculate_gain(data, xj, threshold, method)
+        if gain > best_gain:
+            best_gain = gain
             best_threshold = threshold
 
-    return best_threshold, best_ig
+    return best_threshold, best_gain
 
 
-def calculate_best_gain(
+def find_best_gain(
         data: Data,
         xj: str,
         method: str = CONSTANTS.IG,
@@ -110,38 +119,37 @@ def calculate_best_gain(
         return calculate_gain(data, xj, method=method), None
 
     elif data.feature_types[xj] == CONSTANTS.NUMERIC:
-        threshold, ig = find_best_threshold_gain(data, xj, method)
+        threshold, gain = find_best_threshold_gain(data, xj, method)
 
-        return ig, threshold
+        return gain, threshold
 
 
-def choose_best_feature(
+def find_best_feature(
         data: Data,
         method: str = CONSTANTS.IG,
 ) -> Tuple[Union[str, None], Union[int, float, None]]:
-    if method == CONSTANTS.IG:
-        best_gain = -1
-        best_feature = None
-        threshold = None
+    best_gain = -1
+    best_feature = None
+    best_threshold = None
 
-        for xj in data.get_feature_names():
-            ig, t = calculate_best_gain(data, xj, method)
+    for xj in data.get_feature_names():
+        gain, threshold = find_best_gain(data, xj, method)
 
-            if ig > best_gain:
-                best_gain = ig
-                best_feature = xj
-                threshold = t
+        if gain > best_gain:
+            best_gain = gain
+            best_feature = xj
+            best_threshold = threshold
 
-        # when going deeper doesn't help
-        if best_gain == 0:
-            return None, None
+    # when going deeper doesn't help
+    if best_gain == 0:
+        return None, None
 
-        return best_feature, threshold
+    return best_feature, best_threshold
 
 
 def construct_tree(
         data: Data,
-        method: str = 'IG',
+        method: str = CONSTANTS.IG,
 ) -> Union[Node, LeafNode]:
     # all data sorted correctly
     if len(data.y.unique()) == 1 or len(data.y) == 1:
@@ -151,7 +159,7 @@ def construct_tree(
     elif data.X.shape[1] == 0:
         return LeafNode(data.y.mode()[0])
 
-    best_feature, threshold = choose_best_feature(data, method)
+    best_feature, threshold = find_best_feature(data, method)
 
     # none of the features is useful
     if best_feature is None:

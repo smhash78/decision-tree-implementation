@@ -142,4 +142,4 @@ if __name__ == '__main__':
 
     print('"Trees constructed using gain ratio"')
     for i in range(1, 4):
-        run_test_and_print(i, CONSTANTS.IG)
+        run_test_and_print(i, CONSTANTS.GR)
